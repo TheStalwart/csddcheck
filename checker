@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <stlwrt@gmail.com> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return. Pavel Shevchuk
+# ----------------------------------------------------------------------------
+# Audio samples were borrowed from Stepmania game - http://www.stepmania.com/
+# ----------------------------------------------------------------------------
+
+firstpage=$1
+lastpage=`cat answers.dat | wc -l`
+
+for page in `seq $firstpage $lastpage`; do \
+  line=`awk NR==$page answers.dat`
+  if [ ${line:=''} != '' ]; then \
+    mplayer page.ogg &> /dev/null &
+    echo '--- Page #'$page
+    for q in `seq 0 ${#line}`; do \
+      a=${line:q:1}
+      if [ ${a:=0} -gt 0 ]; then \
+        read -a r -e -n 1 -p $(expr $q + 1)'> '
+        if [ $r != $a ]; then
+          mplayer wrong.ogg &> /dev/null &
+          echo FAIL!! Correct answer - $a
+        else
+          mplayer right.ogg &> /dev/null &
+        fi
+      fi
+    done
+  fi
+done
+
